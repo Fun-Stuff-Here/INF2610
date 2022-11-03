@@ -14,23 +14,20 @@ Code, Compile, Run and Debug online from anywhere in world.
 #include <fcntl.h> // pour open
 #include <sys/types.h>  // pour mkfifo
 #include <sys/stat.h>  // pour mkfifo
-int main() { mkfifo("tube",0600);
+int main() {
+   mkfifo("tube",0600);
+   int fd = open("tube",O_RDONLY);
    if(fork()==0) {
-             int fd=open("tube",O_RDONLY);
-             printf("pid= %d ppid=%d \n", getpid(), getppid());
-             int m; while(read(fd,&m,sizeof(int))>0) 
-                    printf("Fils: m=%d\n",m);
-             close(fd);
-} else {     srand(time(NULL));
-             int n;  
-             int fd=open("tube",O_WRONLY);
-             for( int i = 5; i>0; i--) {  n = rand() % 100;
-                     printf("pid=%d, n = %d\n", getpid(), n);
-                     write(fd,&n,sizeof(int));    
-             }     
-         close(fd);
-         wait(NULL);
-       }
-     return 0;
+      int fd2 = open("tube",O_WRONLY);
+      write(fd2,"Bonjour",7);
+      close(fd2);
+      _exit(0);
+   }
+   char buf[100];
+    while(read(fd,&buf,7)>0) 
+            printf("Fils: m=%s\n",buf);
+    close(fd);
+    wait(NULL);
+   return 0;
 }
 
